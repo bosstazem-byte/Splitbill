@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แบ่งบิล · OJIZAKAYA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+:root {
+  --primary: #D4502A;
+  --primary-light: #E8734F;
+  --primary-dark: #B03E1F;
+  --accent: #F5C842;
+  --bg: #FBF6F0;
+  --bg2: #F2EBE0;
+  --card: #FFFCF8;
+  --text: #1A1208;
+  --text2: #6B5744;
+  --text3: #A8937E;
+  --border: #E8DDD0;
+  --shadow-sm: 0 1px 4px rgba(90,50,20,0.08);
+  --shadow: 0 4px 16px rgba(90,50,20,0.10);
+  --shadow-lg: 0 12px 40px rgba(90,50,20,0.14);
+  --r: 16px;
+  --r-sm: 10px;
+  --font: 'Noto Sans Thai', sans-serif;
+  --font-display: 'DM Serif Display', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+.app-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--bg);
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100dvh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ─── SETUP SCREEN ─── */
+#s-setup {
+  background: var(--bg);
+  padding: 40px 24px;
+  align-items: center;
+  justify-content: center;
+}
+.setup-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  width: 100%;
+}
+.setup-card h2 { font-family: var(--font-display); font-size: 22px; color: var(--primary); margin-bottom: 12px; }
+.setup-card p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
+.setup-step {
+  background: var(--bg2);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.setup-step strong { color: var(--primary); }
+.setup-step code {
+  background: rgba(212,80,42,0.1);
+  color: var(--primary-dark);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ─── NAME SCREEN ─── */
+#s-name {
+  background: linear-gradient(160deg, #2A1508 0%, #4A2010 40%, #D4502A 100%);
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+#s-name::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(245,200,66,0.15) 0%, transparent 70%);
+  top: -60px; right: -80px;
+  pointer-events: none;
+}
+#s-name::after {
+  content: '和';
+  position: absolute;
+  font-size: 220px;
+  color: rgba(255,255,255,0.04);
+  right: -20px; bottom: -30px;
+  font-family: serif;
+  pointer-events: none;
+  line-height: 1;
+}
+.logo-area { text-align: center; margin-bottom: 36px; position: relative; z-index: 1; }
+.logo-icon { font-size: 52px; line-height: 1; margin-bottom: 6px; display: block; }
+.logo-name { font-family: var(--font-display); font-size: 28px; color: #fff; letter-spacing: 0.05em; }
+.logo-sub { font-size: 12px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.name-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px 22px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: var(--shadow-lg);
+  position: relative; z-index: 1;
+}
+.name-card h2 { font-size: 17px; color: var(--text); text-align: center; margin-bottom: 6px; font-weight: 600; }
+.name-card .hint { font-size: 13px; color: var(--text3); text-align: center; margin-bottom: 22px; }
+.name-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: var(--font);
+  outline: none;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-bottom: 14px;
+}
+.name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(212,80,42,0.12); }
+.btn-join {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+.btn-join:active { background: var(--primary-dark); transform: scale(0.98); }
+.session-badge {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  position: relative; z-index: 1;
+}
+.session-badge span { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+/* ─── ITEMS SCREEN ─── */
+#s-items { background: var(--bg); }
+
+.items-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0; z-index: 20;
+  box-shadow: var(--shadow-sm);
+}
+.header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.header-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.header-restaurant { font-size: 11px; color: var(--text3); }
+.btn-summary-pill {
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-summary-pill:active { background: var(--primary-dark); }
+
+.total-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 16px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+.total-bar-label { font-size: 12px; color: var(--text3); }
+.total-bar-amount { font-size: 20px; font-weight: 700; color: var(--primary); font-family: var(--font-display); }
+.total-bar-vat { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.online-strip {
+  display: flex;
+  gap: 6px;
+  padding: 7px 16px;
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--card);
+}
+.online-strip::-webkit-scrollbar { display: none; }
+.online-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+.online-chip .dot-me { outline: 2px solid rgba(255,255,255,0.5); }
+
+.items-list { flex: 1; padding: 8px 0 24px; }
+.section-label {
+  padding: 14px 16px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.item-card {
+  margin: 3px 12px;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.18s, background 0.18s, transform 0.1s;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.item-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 0.18s;
+}
+.item-card.me-selected {
+  border-color: var(--primary);
+  background: #FFF8F4;
+}
+.item-card.me-selected::before { background: var(--primary); }
+.item-card:active { transform: scale(0.985); }
+
+.item-check {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s;
+  background: var(--bg);
+}
+.item-card.me-selected .item-check {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.item-check svg { display: none; }
+.item-card.me-selected .item-check svg { display: block; }
+
+.item-body { flex: 1; min-width: 0; }
+.item-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-code { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.item-selectors { display: flex; gap: 3px; margin-top: 5px; flex-wrap: wrap; }
+.sel-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: transform 0.15s;
+}
+
+.item-price-col { text-align: right; flex-shrink: 0; }
+.item-orig-price { font-size: 11px; color: var(--text3); line-height: 1; }
+.item-per-price { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.item-per-price.shared { color: var(--primary); }
+.item-per-label { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* Share Banner */
+.share-banner {
+  margin: 10px 12px 2px;
+  background: linear-gradient(135deg, #2A1508, #4A2010);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.share-banner-text { color: rgba(255,255,255,0.85); font-size: 13px; }
+.share-banner-text strong { color: var(--accent); font-size: 15px; letter-spacing: 2px; display: block; }
+.btn-share {
+  padding: 9px 16px;
+  background: var(--accent);
+  color: #2A1508;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.btn-share:active { opacity: 0.8; }
+
+/* ─── SUMMARY SCREEN ─── */
+#s-summary { background: var(--bg); }
+
+.summary-header {
+  background: linear-gradient(135deg, #2A1508, var(--primary));
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.back-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.back-btn:active { background: rgba(255,255,255,0.25); }
+.summary-header h1 { font-family: var(--font-display); font-size: 22px; color: #fff; }
+
+.summary-body { flex: 1; padding: 12px 0 40px; overflow-y: auto; }
+
+.person-card {
+  background: var(--card);
+  margin: 8px 12px;
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.person-card-header {
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.person-card-name { font-size: 15px; font-weight: 700; color: #fff; }
+.person-card-total { font-family: var(--font-display); font-size: 22px; color: #fff; }
+.person-card-items { padding: 4px 0 8px; }
+.person-item-row {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+.person-item-row:last-child { border-bottom: none; }
+.pir-name { font-size: 13px; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pir-shared { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.pir-price { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.person-card-footer {
+  background: var(--bg2);
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text2);
+  padding: 2px 0;
+}
+.footer-row.total-row {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  border-top: 1px dashed var(--border);
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+.grand-total-card {
+  background: linear-gradient(135deg, #2A1508, var(--primary-dark));
+  margin: 8px 12px;
+  border-radius: var(--r);
+  padding: 18px 18px;
+  box-shadow: var(--shadow-lg);
+}
+.gt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  padding: 4px 0;
+}
+.gt-row.gt-total {
+  font-size: 20px;
+  font-family: var(--font-display);
+  color: var(--accent);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 10px;
+  margin-top: 6px;
+}
+.gt-note { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center; }
+
+/* ─── LOADING ─── */
+.loading-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  z-index: 100;
+  transition: opacity 0.3s;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--text3); }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #1A1208;
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+  opacity: 0;
+  white-space: nowrap;
+  max-width: calc(100vw - 40px);
+  text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ─── UTIL ─── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <!-- Loading -->
+  <div class="loading-screen" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">กำลังเชื่อมต่อ...</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- SCREEN: Setup -->
+  <div class="screen" id="s-setup">
+    <div style="padding:20px 16px 8px; text-align:center;">
+      <div style="font-size:40px">🍣</div>
+      <div style="font-family:var(--font-display);font-size:24px;color:var(--primary);margin-top:4px;">ตั้งค่า Firebase</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px;">จำเป็นสำหรับ real-time sync</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:12px 16px 32px;">
+      <div class="setup-card">
+        <h2>วิธีตั้งค่า</h2>
+        <p>แอปนี้ใช้ Firebase Realtime Database สำหรับ sync แบบ real-time แก้ไขไฟล์ index.html ตามขั้นตอนด้านล่าง</p>
+        <div class="setup-step"><strong>1.</strong> ไปที่ <code>console.firebase.google.com</code> → สร้าง Project ใหม่</div>
+        <div class="setup-step"><strong>2.</strong> ไปที่ Build → <strong>Realtime Database</strong> → Create database → เลือก "Start in test mode"</div>
+        <div class="setup-step"><strong>3.</strong> ไปที่ Project Settings → เลื่อนลง → Add app (Web) → คัดลอก <code>firebaseConfig</code></div>
+        <div class="setup-step"><strong>4.</strong> เปิดไฟล์ <code>index.html</code> → หา <code>const firebaseConfig</code> → แทนที่ค่า <code>YOUR_...</code> ทั้งหมด</div>
+        <div class="setup-step"><strong>5.</strong> Push ขึ้น GitHub → เปิด Pages → แชร์ URL ให้เพื่อน 🎉</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: Enter Name -->
+  <div class="screen" id="s-name">
+    <div class="logo-area">
+      <span class="logo-icon">🍱</span>
+      <div class="logo-name">OJIZAKAYA</div>
+      <div class="logo-sub">โอจิ อิซากายะ · Table A3</div>
+    </div>
+    <div class="name-card">
+      <h2>ยินดีต้อนรับ! 🎉</h2>
+      <div class="hint">ใส่ชื่อของคุณเพื่อเข้าร่วมแบ่งบิล</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="ชื่อของคุณ" maxlength="20" autocomplete="off">
+      <button class="btn-join" id="btnJoin">เข้าร่วม →</button>
+    </div>
+    <div class="session-badge">Session: <span id="sessionBadge"></span></div>
+  </div>
+
+  <!-- SCREEN: Items -->
+  <div class="screen" id="s-items">
+    <!-- Sticky header -->
+    <div class="items-header">
+      <div class="header-main">
+        <div class="header-left">
+          <div class="header-avatar" id="myAvatar"></div>
+          <div>
+            <div class="header-name" id="myName"></div>
+            <div class="header-restaurant">OJIZAKAYA · 28/03/2026</div>
+          </div>
+        </div>
+        <button class="btn-summary-pill" id="btnSummary">สรุปบิล</button>
+      </div>
+      <div class="total-bar">
+        <div>
+          <div class="total-bar-label">ส่วนของคุณ (ก่อน VAT)</div>
+          <div class="total-bar-vat" id="myVatLine"></div>
+        </div>
+        <div class="total-bar-amount" id="myTotal">฿0</div>
+      </div>
+      <div class="online-strip" id="onlineStrip"></div>
+    </div>
+
+    <!-- Items list -->
+    <div class="items-list" id="itemsList"></div>
+  </div>
+
+  <!-- SCREEN: Summary -->
+  <div class="screen" id="s-summary">
+    <div class="summary-header">
+      <button class="back-btn" id="btnBack">←</button>
+      <h1>สรุปบิล</h1>
+    </div>
+    <div class="summary-body" id="summaryBody"></div>
+  </div>
+
+</div><!-- app-wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  FIREBASE CONFIG — แทนที่ค่า YOUR_... ด้วยของจริง
+// ═══════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// ═══════════════════════════════════════════════════════
+//  BILL DATA
+// ═══════════════════════════════════════════════════════
+const SUBTOTAL = 2369;
+const TOTAL_WITH_VAT = 2534;
+const VAT_RATE = 0.07;
+
+const ITEMS = [
+  // ── อาหาร ────────────────────────────────────────────
+  { id:"f049",   code:"F-049", name:"ข้าวโพดผัดเนย",            price:59,  cat:"food" },
+  { id:"f020_1", code:"F-020", name:"ไก่ย่างเนยแลมอน #1",        price:49,  cat:"food" },
+  { id:"f020_2", code:"F-020", name:"ไก่ย่างเนยแลมอน #2",        price:49,  cat:"food" },
+  { id:"f006",   code:"F-006", name:"ไก่ย่างชีส",                price:49,  cat:"food" },
+  { id:"f018",   code:"F-018", name:"ไข่หวานย่าง",               price:39,  cat:"food" },
+  { id:"f019",   code:"F-019", name:"ปีกไก่กลิ้ง",               price:49,  cat:"food" },
+  { id:"f131_1", code:"F-131", name:"แซลมอนครีมชีโรล #1",        price:289, cat:"food" },
+  { id:"f131_2", code:"F-131", name:"แซลมอนครีมชีโรล #2",        price:289, cat:"food" },
+  { id:"f108_1", code:"F-108", name:"ซูชิแซลมอน #1",             price:29,  cat:"food" },
+  { id:"f108_2", code:"F-108", name:"ซูชิแซลมอน #2",             price:29,  cat:"food" },
+  { id:"f103_1", code:"F-103", name:"ซูชิทูน่า #1",              price:39,  cat:"food" },
+  { id:"f103_2", code:"F-103", name:"ซูชิทูน่า #2",              price:39,  cat:"food" },
+  { id:"f103_3", code:"F-103", name:"ซูชิทูน่า #3",              price:39,  cat:"food" },
+  { id:"f103_4", code:"F-103", name:"ซูชิทูน่า #4",              price:39,  cat:"food" },
+  { id:"f104",   code:"F-104", name:"ซูชิทูน่าพิเศษ",            price:39,  cat:"food" },
+  { id:"f128",   code:"F-128", name:"ข้าวหน้าปลาแซลมอน",         price:329, cat:"food" },
+  { id:"f072",   code:"F-072", name:"ปลาไข่ย่าง",                price:99,  cat:"food" },
+  { id:"f070",   code:"F-070", name:"ครีมปลากระบะย่าง",           price:119, cat:"food" },
+  { id:"f053",   code:"F-053", name:"ยำแซลมอน",                  price:169, cat:"food" },
+  { id:"f190",   code:"F-190", name:"ข้าวแกงกะหรี่หมูทงคัตสึ",   price:179, cat:"food" },
+  { id:"f185",   code:"F-185", name:"ข้าวหน้าหมูดำโรบุตะ",        price:139, cat:"food" },
+  // ── เครื่องดื่ม ──────────────────────────────────────
+  { id:"d086_1", code:"D-086", name:"ชเวปป์ #1",                 price:25,  cat:"drink" },
+  { id:"d086_2", code:"D-086", name:"ชเวปป์ #2",                 price:25,  cat:"drink" },
+  { id:"d083",   code:"D-083", name:"โค้ก",                      price:25,  cat:"drink" },
+  { id:"d084_1", code:"D-084", name:"โค้กซีโร่ #1",              price:25,  cat:"drink" },
+  { id:"d084_2", code:"D-084", name:"โค้กซีโร่ #2",              price:25,  cat:"drink" },
+  { id:"d084_3", code:"D-084", name:"โค้กซีโร่ #3",              price:25,  cat:"drink" },
+  { id:"d089_1", code:"D-089", name:"น้ำแข็งถัง #1",             price:30,  cat:"drink" },
+  { id:"d089_2", code:"D-089", name:"น้ำแข็งถัง #2",             price:30,  cat:"drink" },
+];
+
+const USER_COLORS = ["#D4502A","#2ECC71","#3498DB","#9B59B6","#E74C3C","#F39C12","#1ABC9C","#E67E22"];
+
+// ═══════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════
+let db = null;
+let sessionId = null;
+let myUserId = null;
+let myName = null;
+let myColor = null;
+let stateUsers = {};      // { userId: { name, color } }
+let stateSelections = {}; // { itemId: { userId: true } }
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function isFirebaseConfigured() {
+  return !firebaseConfig.apiKey.startsWith("YOUR_");
+}
+
+function genId(len = 8) {
+  return Math.random().toString(36).slice(2, 2 + len).toUpperCase();
+}
+
+function getInitials(name) {
+  return name.trim().slice(0,2).toUpperCase() || "??";
+}
+
+function fmt(n) {
+  return "฿" + Math.round(n).toLocaleString();
+}
+
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), duration);
+}
+
+function hideLoading() {
+  const el = document.getElementById("loading");
+  el.style.opacity = "0";
+  setTimeout(() => el.style.display = "none", 300);
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ═══════════════════════════════════════════════════════
+//  CALCULATIONS
+// ═══════════════════════════════════════════════════════
+function calcMyShare() {
+  if (!myUserId) return 0;
+  let total = 0;
+  for (const item of ITEMS) {
+    const sel = stateSelections[item.id] || {};
+    if (sel[myUserId]) {
+      const count = Object.keys(sel).length;
+      total += item.price / count;
+    }
+  }
+  return total;
+}
+
+function calcPersonShare(userId) {
+  let subtotal = 0;
+  const breakdown = [];
+  for (const item of ITEMS) {
+    const sel = stateSelections[item.id] || {};
+    if (sel[userId]) {
+      const count = Object.keys(sel).length;
+      const share = item.price / count;
+      subtotal += share;
+      breakdown.push({ item, share, count });
+    }
+  }
+  return { subtotal, breakdown };
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+function renderOnlineStrip() {
+  const strip = document.getElementById("onlineStrip");
+  strip.innerHTML = "";
+  const users = Object.entries(stateUsers);
+  if (!users.length) { strip.innerHTML = '<span style="font-size:12px;color:var(--text3)">ยังไม่มีใครเข้าร่วม</span>'; return; }
+  for (const [uid, u] of users) {
+    const chip = document.createElement("div");
+    chip.className = "online-chip" + (uid === myUserId ? " dot-me" : "");
+    chip.style.background = u.color;
+    chip.innerHTML = `<span style="font-size:11px">●</span> ${escHtml(u.name)}`;
+    strip.appendChild(chip);
+  }
+}
+
+function renderMyTotal() {
+  const share = calcMyShare();
+  const vat = share * VAT_RATE;
+  document.getElementById("myTotal").textContent = fmt(share);
+  document.getElementById("myVatLine").textContent = `+ VAT 7% = ${fmt(share + vat)}`;
+}
+
+function renderItems() {
+  const list = document.getElementById("itemsList");
+  const existing = {};
+  list.querySelectorAll(".item-card[data-id]").forEach(el => existing[el.dataset.id] = el);
+
+  // Build section structure
+  let html = "";
+  const hasBanner = list.querySelector(".share-banner");
+  if (!hasBanner) {
+    html += `<div class="share-banner">
+      <div class="share-banner-text">
+        แชร์ลิงก์ให้เพื่อน<br>
+        <strong id="sessionCode"></strong>
+      </div>
+      <button class="btn-share" id="btnShare">คัดลอก</button>
+    </div>`;
+  }
+
+  const food = ITEMS.filter(i => i.cat === "food");
+  const drink = ITEMS.filter(i => i.cat === "drink");
+
+  function buildItems(items, label) {
+    let s = `<div class="section-label">${label}</div>`;
+    for (const item of items) {
+      const sel = stateSelections[item.id] || {};
+      const selUsers = Object.keys(sel);
+      const count = selUsers.length;
+      const isMe = !!(myUserId && sel[myUserId]);
+      const perPrice = count > 0 ? item.price / count : item.price;
+      const isShared = count > 1;
+
+      let dotsHtml = "";
+      for (const uid of selUsers) {
+        const u = stateUsers[uid];
+        if (!u) continue;
+        dotsHtml += `<div class="sel-dot" style="background:${u.color}" title="${escHtml(u.name)}">${getInitials(u.name)}</div>`;
+      }
+
+      s += `<div class="item-card${isMe ? " me-selected" : ""}" data-id="${item.id}" onclick="toggleItem('${item.id}')">
+        <div class="item-check">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="item-body">
+          <div class="item-name">${escHtml(item.name)}</div>
+          <div class="item-code">${item.code}</div>
+          ${dotsHtml ? `<div class="item-selectors">${dotsHtml}</div>` : ""}
+        </div>
+        <div class="item-price-col">
+          ${isShared ? `<div class="item-orig-price">฿${item.price}</div>` : ""}
+          <div class="item-per-price${isShared ? " shared" : ""}">฿${Math.round(perPrice * 10) / 10 % 1 === 0 ? Math.round(perPrice) : (perPrice).toFixed(1)}</div>
+          ${isShared ? `<div class="item-per-label">÷ ${count} คน</div>` : ""}
+        </div>
+      </div>`;
+    }
+    return s;
+  }
+
+  html += buildItems(food, "🍽 อาหาร");
+  html += buildItems(drink, "🥤 เครื่องดื่ม");
+
+  list.innerHTML = html;
+
+  // Session code
+  const codeEl = document.getElementById("sessionCode");
+  if (codeEl) codeEl.textContent = sessionId;
+
+  // Share button
+  const shareBtn = document.getElementById("btnShare");
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const url = window.location.origin + window.location.pathname + "?s=" + sessionId;
+      navigator.clipboard.writeText(url).then(() => showToast("คัดลอก URL แล้ว! แชร์ให้เพื่อนเปิด 🎉")).catch(() => {
+        prompt("คัดลอก URL นี้:", url);
+      });
+    };
+  }
+}
+
+function renderSummary() {
+  const body = document.getElementById("summaryBody");
+  let html = "";
+
+  let grandSubtotal = 0;
+
+  // Sort users so "me" is first
+  const userIds = Object.keys(stateUsers).sort((a,b) => a === myUserId ? -1 : b === myUserId ? 1 : 0);
+
+  for (const uid of userIds) {
+    const u = stateUsers[uid];
+    const { subtotal, breakdown } = calcPersonShare(uid);
+    const vat = subtotal * VAT_RATE;
+    const total = subtotal + vat;
+    grandSubtotal += subtotal;
+
+    const isMe = uid === myUserId;
+    html += `<div class="person-card">
+      <div class="person-card-header" style="background:${u.color}">
+        <div class="person-card-name">${escHtml(u.name)}${isMe ? " (คุณ)" : ""}</div>
+        <div class="person-card-total">${fmt(total)}</div>
+      </div>
+      <div class="person-card-items">`;
+
+    if (breakdown.length === 0) {
+      html += `<div class="person-item-row"><div class="pir-name" style="color:var(--text3)">ยังไม่ได้เลือกรายการใด</div></div>`;
+    } else {
+      for (const { item, share, count } of breakdown) {
+        html += `<div class="person-item-row">
+          <div class="pir-name">${escHtml(item.name)}</div>
+          <div class="pir-shared">${count > 1 ? `÷${count}` : ""}</div>
+          <div class="pir-price">${fmt(share)}</div>
+        </div>`;
+      }
+    }
+
+    html += `</div>
+      <div class="person-card-footer">
+        <div class="footer-row"><span>ค่าอาหาร</span><span>${fmt(subtotal)}</span></div>
+        <div class="footer-row"><span>VAT 7%</span><span>${fmt(vat)}</span></div>
+        <div class="footer-row total-row"><span>รวม</span><span>${fmt(total)}</span></div>
+      </div>
+    </div>`;
+  }
+
+  const grandVat = grandSubtotal * VAT_RATE;
+  const grandTotal = grandSubtotal + grandVat;
+  const diff = TOTAL_WITH_VAT - Math.round(grandTotal);
+
+  html += `<div class="grand-total-card">
+    <div class="gt-row"><span>รวมทุกคน (ก่อน VAT)</span><span>${fmt(grandSubtotal)}</span></div>
+    <div class="gt-row"><span>VAT 7%</span><span>${fmt(grandVat)}</span></div>
+    <div class="gt-row gt-total"><span>ยอดรวม</span><span>${fmt(grandTotal)}</span></div>
+    <div class="gt-note">ยอดจริงตามบิล ฿2,534 · ${Object.keys(stateUsers).length} คน</div>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIREBASE OPS
+// ═══════════════════════════════════════════════════════
+function dbRef(path) {
+  return db.ref(`sessions/${sessionId}/${path}`);
+}
+
+function toggleItem(itemId) {
+  if (!myUserId) return;
+  const sel = stateSelections[itemId] || {};
+  const isSelected = !!sel[myUserId];
+  if (isSelected) {
+    dbRef(`selections/${itemId}/${myUserId}`).remove();
+  } else {
+    dbRef(`selections/${itemId}/${myUserId}`).set(true);
+  }
+}
+
+function joinSession(name) {
+  myName = name;
+  myUserId = localStorage.getItem("splitbill_uid_" + sessionId) || ("u_" + genId(10));
+  localStorage.setItem("splitbill_uid_" + sessionId, myUserId);
+
+  // Assign color based on join order
+  const usedColors = Object.values(stateUsers).map(u => u.color);
+  myColor = USER_COLORS.find(c => !usedColors.includes(c)) || USER_COLORS[Object.keys(stateUsers).length % USER_COLORS.length];
+
+  dbRef(`users/${myUserId}`).set({ name, color: myColor });
+  localStorage.setItem("splitbill_name_" + sessionId, name);
+
+  setupItemsScreen();
+  showScreen("s-items");
+}
+
+function setupItemsScreen() {
+  const avatar = document.getElementById("myAvatar");
+  avatar.style.background = myColor;
+  avatar.textContent = getInitials(myName);
+  document.getElementById("myName").textContent = myName;
+  renderOnlineStrip();
+  renderMyTotal();
+  renderItems();
+}
+
+function subscribeToSession() {
+  // Users
+  dbRef("users").on("value", snap => {
+    stateUsers = snap.val() || {};
+    renderOnlineStrip();
+    if (document.getElementById("s-summary").classList.contains("active")) renderSummary();
+  });
+
+  // Selections
+  dbRef("selections").on("value", snap => {
+    stateSelections = snap.val() || {};
+    renderMyTotal();
+    if (document.getElementById("s-items").classList.contains("active")) renderItems();
+    if (document.getElementById("s-summary").classList.contains("active")) renderSummary();
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  // Check Firebase
+  if (!isFirebaseConfigured()) {
+    hideLoading();
+    showScreen("s-setup");
+    return;
+  }
+
+  // Init Firebase
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+  } catch(e) {
+    hideLoading();
+    showScreen("s-setup");
+    return;
+  }
+
+  // Session ID from URL
+  const params = new URLSearchParams(window.location.search);
+  sessionId = params.get("s");
+  if (!sessionId) {
+    sessionId = genId(6);
+    const newUrl = window.location.origin + window.location.pathname + "?s=" + sessionId;
+    window.history.replaceState({}, "", newUrl);
+  }
+  document.getElementById("sessionBadge").textContent = sessionId;
+
+  // Subscribe to data
+  subscribeToSession();
+
+  // Check if already joined
+  const savedName = localStorage.getItem("splitbill_name_" + sessionId);
+  const savedUid = localStorage.getItem("splitbill_uid_" + sessionId);
+  if (savedName && savedUid) {
+    myUserId = savedUid;
+    myName = savedName;
+    // Wait for users to load then pick color
+    db.ref(`sessions/${sessionId}/users/${myUserId}`).once("value", snap => {
+      if (snap.exists()) {
+        myColor = snap.val().color || USER_COLORS[0];
+      } else {
+        myColor = USER_COLORS[0];
+        db.ref(`sessions/${sessionId}/users/${myUserId}`).set({ name: myName, color: myColor });
+      }
+      hideLoading();
+      setupItemsScreen();
+      showScreen("s-items");
+    });
+  } else {
+    hideLoading();
+    showScreen("s-name");
+  }
+
+  // Name entry
+  const nameInput = document.getElementById("nameInput");
+  const btnJoin = document.getElementById("btnJoin");
+
+  function doJoin() {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); showToast("กรุณาใส่ชื่อก่อนนะ"); return; }
+    joinSession(name);
+  }
+
+  btnJoin.addEventListener("click", doJoin);
+  nameInput.addEventListener("keydown", e => { if (e.key === "Enter") doJoin(); });
+
+  // Summary button
+  document.getElementById("btnSummary").addEventListener("click", () => {
+    renderSummary();
+    showScreen("s-summary");
+  });
+
+  // Back button
+  document.getElementById("btnBack").addEventListener("click", () => {
+    showScreen("s-items");
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
